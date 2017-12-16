@@ -1,12 +1,14 @@
+#include <Adafruit_LEDBackpack.h>
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
-#include <Servo.h>
-Servo SerAr;
-Servo SerAb;
 int TAC = 2;
+int Zumbador = 7;
+
 static const uint8_t PROGMEM
-  Normal[]= 
+ primer[][8]=
+{  
   {B00111100,
    B01111110,
    B11111111,
@@ -15,185 +17,125 @@ static const uint8_t PROGMEM
    B11111111,
    B01111110,
    B00111100},
-
-  NormalIzq1[]=
-  {B00111100,
-B01111110,
-B11111111,
-B11111111,
-B11100111,
-B11100111,
-B01111110,
-B00111100},
-
-NormalIzq2[]=
-  {B00111100,
-B01111110,
-B11111111,
-B11111111,
-B11111111,
-B11100111,
-B01100110,
-B00111100},
-NormalIzq3[]=
-  {B00111100,
-B01111110,
-B11111111,
-B11111111,
-B11111111,
-B11111111,
-B01100110,
-B00100100},
-
-NormalIzqAr1[]=
-{B00111100,
-B01111110,
-B11111111,
-B11111111,
-B11111111,
-B11111111,
-B01001110,
-B00001100},
-NormalIzqAr2[]=
-{B00111100,
-B01111110,
-B11111111,
-B11111111,
-B11111111,
-B10011111,
-B00011110,
-B00111100},
-NormalIzqAr3[]=
-{B00111100,
-B01111110,
-B11111111,
-B11111111,
-B00111111,
-B00111111,
-B01111110,
-B00111100},
-NormalAr1[]=
-{B00111100,
-B01111110,
-B11111111,
-B11001111,
-B11001111,
-B11111111,
-B01111110,
-B00111100},
-NormalAr2[]=
-{B00111100,
-B01111110,
-B11111111,
-B10011111,
-B10011111,
-B11111111,
-B01111110,
-B00111100},
-NormalDer1[]=
-{B00111100,
-B01111110,
-B11100111,
-B11100111,
-B11111111,
-B11111111,
-B01111110,
-B00111100},
-NormalDer2[]=
-{B00111100,
-B01100110,
-B11100111,
-B11111111,
-B11111111,
-B11111111,
-B01111110,
-B00111100},
-NormalDerAr1[]=
-{B00111100,
-B01111110,
-B10011111,
-B10011111,
-B11111111,
-B11111111,
-B01111110,
-B00111100},
-NormalDerAr2[]=
-{B00111100,
-B01001110,
-B11001111,
-B11111111,
-B11111111,
-B11111111,
-B01111110,
-B00111100};
-Adafruit_8x8matrix matrix = Adafruit_8x8matrix();
-
-
-void setup() {
-  pinMode (TAC, INPUT);
-  SerAr.attach(4, 800, 2400);
-  SerAb.attach(5, 650, 2400);
-  Serial.begin(9600);
-  Serial.println("8x8 LED Matrix Test");
   
-  matrix.begin(0x70);  // pass in the address
+  {B00111100,
+B01111110,
+B11111111,
+B11111111,
+B11100111,
+B11100111,
+B01111110,
+B00111100},
+
+  {B00111100,
+B01111110,
+B11111111,
+B11111111,
+B11111111,
+B11100111,
+B01100110,
+B00111100},
+
+{B00111100,
+B01111110,
+B11111111,
+B11111111,
+B11111111,
+B11111111,
+B01100110,
+B00100100}
+};
+static const uint8_t PROGMEM
+segund[][8]={
+
+{B00111100,
+B01111110,
+B11111111,
+B11111111,
+B11111111,
+B11001111,
+B01001110,
+B00111100},
+
+{B00111100,
+B01111110,
+B11111111,
+B11111111,
+B10011111,
+B10011111,
+B01111110,
+B00111100},
+
+{B00111100,
+B01111110,
+B11111111,
+B00111111,
+B00111111,
+B11111111,
+B01111110,
+B00111100}
+};
+static const uint8_t PROGMEM
+Emfadao[]=
+{B10000001,         // Fully open annoyed eye
+ B01100110,
+        B00000000,
+        B11111111,
+        B11111111,
+        B11111111,
+        B01111110,
+        B00111100};
+   Adafruit_8x8matrix matrix = Adafruit_8x8matrix();
+void setup() {
+ pinMode (TAC, INPUT);
+  pinMode (Zumbador, OUTPUT);
+  
+ matrix.begin(0x70);
 }
 
+void baile() {
+  for (int i=0; i<4; i++){
+   matrix.clear();
+  matrix.drawBitmap(0, 0, primer[i], 8, 8, LED_ON);
+  matrix.writeDisplay();
+  delay(200);
+  pausa();
+}
 
-  
+for (int i=0; i<3; i++){
+   matrix.clear();
+  matrix.drawBitmap(0, 0, segund[i], 8, 8, LED_ON);
+  matrix.writeDisplay();
+  delay(200);
+  pausa();
+}
 
-void loop() {
- int activo = digitalRead(TAC);
+}
+void pausa(){
 
-
- if(activo==HIGH){
-  
- 
- matrix.clear();
-  matrix.drawBitmap(0, 0, Normal, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
+while(digitalRead(TAC)==HIGH){
+  tone(Zumbador, 100, 100);
   matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzq1, 8, 8, LED_ON);
+  matrix.drawBitmap(0, 0, Emfadao, 8, 8, LED_ON);
   matrix.writeDisplay();
-  delay(300);
-  matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzq2, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
-  matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzq3, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
-  SerAb.write(-90);}
-   pausa();
-   if(activo==HIGH){
-matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzqAr1, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
-  matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzqAr2, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
-  matrix.clear();
-  matrix.drawBitmap(0, 0, NormalIzqAr3, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(300);
- SerAr.write(-20);
- delay(100);
- pausa();
-   if(activo==HIGH){
- SerAr.write(40);
- delay(100);}
-   }
- }
-  
- void pausa(){
-  delay(50);
- while(digitalRead(TAC)==LOW){
+  delay(200);
 delay(50);
- }
- }
+}
+}
+void loop() {
+  int activo = digitalRead(TAC);
+int Suena = digitalRead(Zumbador);
+ if (activo==HIGH){
+    
+    delay(100);
+    
+  }
+ 
+baile();
+}
+  
+
+  
+
 
 
